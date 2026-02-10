@@ -1,1 +1,1 @@
-# Genai-SA
+# Smart Fitness Coaching Web App: CoachBot
