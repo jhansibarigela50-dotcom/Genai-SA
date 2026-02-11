@@ -138,7 +138,9 @@ with st.sidebar:
     for t in TASKS:
         if st.checkbox(t["title"], value=True, help=t["desc"]):
             selected_keys.append(t["key"])
-
+# 0) Athlete details
+st.subheader("0) Athlete Details")
+athlete_name = st.text_input("Athlete's name (optional)", "", help="If provided, plans will be addressed to this name.")
 st.subheader("1) Athlete Profile")
 c1, c2, c3 = st.columns(3)
 with c1:
