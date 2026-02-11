@@ -7,9 +7,9 @@ import pandas as pd
 import google.generativeai as genai
 
 # ───────────────────────────────────────────────
-#  HARDCODE YOUR GEMINI API KEY HERE
+#  HARDCORE YOUR GEMINI API KEY HERE
 # ───────────────────────────────────────────────
-GENAI_API_KEY = "YOUR_API_KEY_HERE"    # ← Replace with your real key
+GENAI_API_KEY = "AIzaSyA9OQMnlQm92Dp63QGDjXHv7I6WG3a5Aq0"    # ← Replace with your real key
 
 genai.configure(api_key=GENAI_API_KEY)
 # ───────────────────────────────────────────────
