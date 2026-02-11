@@ -38,3 +38,13 @@ Each sport has multiple types of players that contribute to different areas of t
 Along with training and playing sports come injuries. Common injuries are sprains, joint injuries, muscle injuries, dislocations, fractures, achilles tendon injuries, and shin injuries. To prevent such injuries it is beneficial to create a balanced fitness plan that includes cardiovascular exercises, flexibility, and strength training. Along with exercising warm-ups and cooldowns help get muscles ready for a workout and also relaxed after to prevent strains. Diet and hydration also play a role into successful training with minimal injuries. 
   
 AI based solutions in sports can optimize training, provide tactical advice, and minimize the risk of injury. AI based devices such as GPS vests, bands, and sensors can track heart rate, speed, distance, and movement patterns in which coaches cannot do. This helps the athlete track their progress which is important to improve performance levels. AI models can also analyze injury history, player workload, and game intensity. This hepls the athlete adjust their training intensity, and create recovery plans.
+
+**References**
+
+Johns Hopkins Medicine. (n.d.). Preventing sports injuries. https://www.hopkinsmedicine.org/health/conditions-and-diseases/sports-injuries/preventing-sports-injuries
+
+Skale Fitness. (n.d.). Sports-specific workouts. https://skalefitness.com/sports-specific-workouts/
+
+TTMS. (n.d.). AI in sports: How artificial intelligence supports athletes and coaches. https://ttms.com/ai-in-sports-how-artificial-intelligence-supports-athletes-and-coaches/
+
+VCU Health. (n.d.). 5 common youth sports injuries. https://www.vcuhealth.org/news/5-common-youth-sports-injuries/#:~:text=Overuse%20injuries%20such%20as%20shin,happen%20in%20other%20sports%20too
