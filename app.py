@@ -85,6 +85,6 @@ TASKS: List[Task] = [
             "Provide a mental skills routine for a youth {sport} player (role: {position}) including breath work, focus cues, imagery, and pre-match routines. Keep language coach-like."
         ),
     ),
-    Task(
+    Task
         key="visualization_drills",
         title="Pre-match Visualization Drills",
