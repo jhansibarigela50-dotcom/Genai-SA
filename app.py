@@ -6,11 +6,12 @@ import pandas as pd
 import google.generativeai as genai
 
 # ─────────────────────────────────────────────────────
-#  HARDCODE YOUR GEMINI API KEY HERE (as you requested)
+#  HARDCODE YOUR GEMINI API KEY HERE (as requested)
 # ─────────────────────────────────────────────────────
 GENAI_API_KEY = "AIzaSyA9OQMnlQm92Dp63QGDjXHv7I6WG3a5Aq0"   # ← Replace with your real Gemini API key
 genai.configure(api_key=GENAI_API_KEY)
 # ─────────────────────────────────────────────────────
+
 
 # ----------------------------- Prompt Definitions -----------------------------
 class Task:
@@ -19,6 +20,7 @@ class Task:
         self.title = title
         self.description = description
         self.prompt_template = prompt_template
+
 
 TASKS: List[Task] = [
     Task(
@@ -85,6 +87,34 @@ TASKS: List[Task] = [
             "Provide a mental skills routine for a youth {sport} player (role: {position}) including breath work, focus cues, imagery, and pre-match routines. Keep language coach-like."
         ),
     ),
-    Task
+    Task(
         key="visualization_drills",
         title="Pre-match Visualization Drills",
+        description="Three short visualization scripts tied to goals and role.",
+        prompt_template=(
+            "Write 3 short visualization scripts for {sport} {position} to rehearse key decisions and tactics linked to goals: {goals}."
+        ),
+    ),
+    Task(
+        key="post_injury_mobility",
+        title="Mobility for Post-Injury",
+        description="30-min mobility/tissue-prep circuit with dosage, tempo, pain rules.",
+        prompt_template=(
+            "Create a 30-minute mobility and tissue-prep circuit safe for the following injuries: {injuries}. "
+            "List exercises, dosage, tempo, and pain-monitoring rules."
+        ),
+    ),
+    Task(
+        key="matchday_plan",
+        title="Match-day Plan",
+        description="Checklist: fueling, warm-up timing, pacing, immediate recovery.",
+        prompt_template=(
+            "Create a match-day checklist for a {sport} {position}. Include timing for meals, snacks, hydration, activation, tapering of load, and immediate post-match recovery."
+        ),
+    ),
+]  # ← This closes the TASKS list. Make sure this bracket exists!
+
+
+# ------------------------------- Helper Data ---------------------------------
+SPORT_POSITIONS = {
+    "cricket": ["batter", "bowler", "fast bowler", "spinner", "wicketkeeper", "all-rounder"],
