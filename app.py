@@ -1,4 +1,3 @@
-import os
 import re
 from typing import List, Dict
 
@@ -6,14 +5,12 @@ import streamlit as st
 import pandas as pd
 import google.generativeai as genai
 
-# ───────────────────────────────────────────────
-#  HARDCORE YOUR GEMINI API KEY HERE
-# ───────────────────────────────────────────────
-GENAI_API_KEY = "AIzaSyA9OQMnlQm92Dp63QGDjXHv7I6WG3a5Aq0"    # ← Replace with your real key
-
+# ─────────────────────────────────────────────────────
+#  HARDCODE YOUR GEMINI API KEY HERE (as you requested)
+# ─────────────────────────────────────────────────────
+GENAI_API_KEY = "AIzaSyA9OQMnlQm92Dp63QGDjXHv7I6WG3a5Aq0"   # ← Replace with your real Gemini API key
 genai.configure(api_key=GENAI_API_KEY)
-# ───────────────────────────────────────────────
-
+# ─────────────────────────────────────────────────────
 
 # ----------------------------- Prompt Definitions -----------------------------
 class Task:
@@ -27,191 +24,67 @@ TASKS: List[Task] = [
     Task(
         key="workout_full",
         title="Full-body Workout Plan",
-        description="7-day full-body plan with sets×reps, rest, RPE.",
+        description="7-day progressive full-body plan with sets×reps, rest, RPE, warm-up & cooldown.",
         prompt_template=(
-            "Act as an elite youth {sport} coach. Create a 7-day full-body plan for a "
-            "{age}-year-old {position}. Fitness: {fitness_level}. Goals: {goals}. "
-            "Injuries: {injuries}. Constraints: {constraints}. Include warm-up and cooldown."
+            "Act as an elite youth {sport} coach. Create a 7-day progressive full-body training plan for a "
+            "{age}-year-old {position}. Consider fitness level: {fitness_level}. Goals: {goals}. "
+            "Account for injuries: {injuries}. Training constraints: {constraints}. Provide sets x reps, rest, "
+            "RPE (1-10), and coaching cues. Include warm-up and cooldown for each day."
         ),
     ),
     Task(
         key="recovery_schedule",
         title="Safe Recovery Training",
-        description="5-day low-impact rehabilitation plan.",
+        description="5-day low-impact recovery microcycle with regressions and pain-free ranges.",
         prompt_template=(
-            "Create a 5-day low-impact recovery plan for a youth {sport} {position} with injuries: {injuries}. "
-            "Focus on mobility, flexibility, and pain-free progressions."
+            "Design a 5-day low-impact recovery plan for a youth {sport} {position} with injury history: {injuries}. "
+            "Emphasize mobility, tissue tolerance, flexibility, and pain-free ranges. Avoid contraindicated moves."
         ),
     ),
     Task(
         key="tactical_coaching",
         title="Tactical Coaching",
-        description="6 tactical drills with objectives.",
+        description="6 evidence-informed drills with tactical cues and constraints-led variations.",
         prompt_template=(
-            "Provide tactical coaching for {sport}. Role: {position}. Goals: {goals}. "
-            "Include 6 drills and tactical cues."
+            "Provide tactical coaching for {sport}. Role: {position}. Skill priority: {goals}. "
+            "Include 6 evidence-informed drills with tactical cues, constraints-led variations, and session objectives."
         ),
     ),
     Task(
         key="nutrition_week",
         title="Week-long Nutrition Guide",
-        description="7-day nutrition plan with hydration.",
+        description="7-day nutrition plan with hydration; macros/day if possible.",
         prompt_template=(
-            "Create a 7-day nutrition plan for a {age}-year-old {sport} athlete. Diet: {diet}. "
-            "Allergies: {allergies}. Calories: {calorie_goal}. Include hydration and macros/day."
+            "Create a 7-day nutrition plan for a {age}-year-old youth {sport} athlete. Diet preference: {diet}. "
+            "Allergies: {allergies}. Calorie target: {calorie_goal} kcal/day if provided. Provide macros per day and hydration tips."
         ),
     ),
     Task(
         key="warmup_cooldown",
-        title="Warm-up & Cooldown",
-        description="Position-specific warm-up and cooldown.",
+        title="Personalized Warm-up & Cooldown",
+        description="Position-specific warm-up (10–15 min) and cooldown (10 min), injury-aware.",
         prompt_template=(
-            "Generate a warm-up (10–15 min) and cooldown for {sport} {position}. "
-            "Avoid movements unsafe for injuries: {injuries}."
+            "Generate a position-specific dynamic warm-up (10-15 min) and cooldown (10 min) for {sport} {position}. "
+            "Avoid or regress movements contraindicated for {injuries}."
         ),
     ),
     Task(
         key="hydration_strategy",
         title="Hydration & Electrolytes",
-        description="Daily and match hydration guidelines.",
+        description="Daily hydration strategy and match-day plan.",
         prompt_template=(
-            "Provide a hydration and electrolyte strategy for a {sport} athlete training {training_days} days/week."
+            "Outline a hydration and electrolyte strategy for a {sport} athlete training {training_days} days/week in a warm climate. "
+            "Include pre/during/post guidelines, and practical measures for school tournaments."
         ),
     ),
     Task(
         key="mental_routine",
         title="Mental Focus Routine",
-        description="Mindset routine for young athletes.",
+        description="Mindset routine with breath work, focus cues, and pre-match routine.",
         prompt_template=(
-            "Provide a mental skills routine for a youth {sport} {position}. Include breathwork, focus cues, imagery."
+            "Provide a mental skills routine for a youth {sport} player (role: {position}) including breath work, focus cues, imagery, and pre-match routines. Keep language coach-like."
         ),
     ),
     Task(
         key="visualization_drills",
-        title="Visualization Drills",
-        description="Three pre-match scripts.",
-        prompt_template=(
-            "Write 3 short visualization scripts for a {sport} {position} focused on {goals}."
-        ),
-    ),
-    Task(
-        key="post_injury_mobility",
-        title="Post-Injury Mobility",
-        description="30-min safe mobility session.",
-        prompt_template=(
-            "Write a 30-min mobility session safe for these injuries: {injuries}. Include dosage and tempo."
-        ),
-    ),
-    Task(
-        key="matchday_plan",
-        title="Match-day Plan",
-        description="Fueling, warm-up, and recovery checklist.",
-        prompt_template=(
-            "Create a match-day checklist for a {sport} {position}. Meals, hydration, warm-up, pacing."
-        ),
-    ),
-]
-
-# ------------------------------- Helper Data ---------------------------------
-SPORT_POSITIONS = {
-    "cricket": ["batter", "bowler", "fast bowler", "spinner", "wicketkeeper", "all-rounder"],
-    "football": ["goalkeeper", "defender", "midfielder", "winger", "striker"],
-    "basketball": ["point guard", "shooting guard", "small forward", "power forward", "center"],
-}
-
-SAFETY_RULES = {
-    "knee": ["box jumps", "plyometric jumps"],
-    "ankle": ["cutting drills"],
-    "shoulder": ["overhead pressing"],
-}
-
-def detect_risks(text, injuries):
-    flags = []
-    lt = text.lower()
-    for inj in injuries:
-        for risk in SAFETY_RULES.get(inj, []):
-            if risk in lt:
-                flags.append(f"Risk for {inj}: contains '{risk}'")
-    return flags
-
-def extract_macros(text):
-    days = []
-    for line in text.splitlines():
-        m = re.search(r"day (\d+).*?(\d{3,4}) kcal.*?(\d{2,3}) g.*?(\d{2,3}) g.*?(\d{2,3}) g", line, re.I)
-        if m:
-            d, kcal, p, c, f = m.groups()
-            days.append({"Day": int(d), "Calories": int(kcal), "Protein(g)": int(p), "Carbs(g)": int(c), "Fat(g)": int(f)})
-    if days:
-        return pd.DataFrame(days)
-    return None
-
-
-# --------------------------------- UI -----------------------------------------
-st.title("🏅 CoachBot AI — Smart Fitness Assistant")
-st.caption("AI-generated fitness, recovery, tactics, and nutrition for youth athletes.")
-
-with st.sidebar:
-    st.header("⚙️ Settings")
-    temperature = st.slider("Temperature", 0.0, 1.0, 0.7)
-    top_p = st.slider("Top-p", 0.0, 1.0, 0.9)
-    top_k = st.slider("Top-k", 1, 64, 32)
-    st.markdown("### Select features:")
-    selected_keys = [t.key for t in TASKS if st.checkbox(t.title, True)]
-
-sport = st.selectbox("Sport", list(SPORT_POSITIONS.keys()))
-position = st.selectbox("Position", SPORT_POSITIONS[sport])
-age = st.number_input("Age", 8, 19, 15)
-fitness = st.selectbox("Fitness Level", ["beginner", "intermediate", "advanced"])
-injuries = st.multiselect("Injury history", ["knee", "ankle", "shoulder", "none"], ["none"])
-if "none" in injuries and len(injuries) > 1:
-    injuries.remove("none")
-
-goals = st.multiselect("Goals", ["stamina", "strength", "speed", "tactics", "mobility"], ["stamina"])
-diet = st.selectbox("Diet", ["veg", "non-veg", "vegan"])
-allergies = st.text_input("Allergies", "none")
-cal_goal = st.text_input("Calorie Goal", "not specified")
-constraints = st.text_area("Training Constraints", "Limited equipment")
-
-if st.button("Generate Plan 🚀"):
-    ctx = {
-        "sport": sport,
-        "position": position,
-        "age": age,
-        "fitness_level": fitness,
-        "goals": ", ".join(goals),
-        "injuries": ", ".join(injuries),
-        "constraints": constraints,
-        "diet": diet,
-        "allergies": allergies,
-        "calorie_goal": cal_goal,
-    }
-
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-pro",
-        generation_config={"temperature": temperature, "top_p": top_p, "top_k": top_k},
-    )
-
-    outputs = {}
-
-    for task in TASKS:
-        if task.key in selected_keys:
-            prompt = task.prompt_template.format(**ctx)
-            resp = model.generate_content(prompt)
-            outputs[task.title] = resp.text
-
-    tabs = st.tabs(list(outputs.keys()))
-    for i, (title, content) in enumerate(outputs.items()):
-        with tabs[i]:
-            st.markdown(content)
-
-            risks = detect_risks(content, injuries)
-            if risks:
-                st.error("\n".join(risks))
-
-            if "nutrition" in title.lower():
-                df = extract_macros(content)
-                if df is not None:
-                    st.dataframe(df)
-
-st.markdown("---")
-st.caption("Educational use only — not medical advice.")
+        title="Pre-match Visualization Drills",
