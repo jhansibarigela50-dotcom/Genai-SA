@@ -15,7 +15,7 @@ CoachBot AI is a web application created through Streamlit that generates person
 * Match-Day Plan
 * Filtered options to choose the assistance needed
 
-#**App Usage**
+**App Usage**
 
 User enter:
 * Athlete name
