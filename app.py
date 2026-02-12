@@ -8,7 +8,7 @@ import google.generativeai as genai
 
 # ===================== API KEY & MODEL =========================
 GENAI_API_KEY = "AIzaSyDTVSEtVpDB9egL0h-yoZFRNqF3xTr9VVE"       # <-- Replace with your real Gemini key
-MODEL_ID = "gemini-1.5-flash"             # If you see 404/429 for this model, try: "gemini-2.0-flash" or "gemini-1.0-pro"
+MODEL_ID = "gemini-2.5-flash"             # If you see 404/429 for this model, try: "gemini-2.0-flash" or "gemini-1.0-pro"
 genai.configure(api_key=GENAI_API_KEY)
 # ==============================================================
 
