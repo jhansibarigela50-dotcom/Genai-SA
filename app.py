@@ -1,5 +1,6 @@
 import re
 from typing import List, Dict
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -8,7 +9,7 @@ import google.generativeai as genai
 # ===================== API KEY (HARDCODED) =====================
 GENAI_API_KEY = "AIzaSyDTVSEtVpDB9egL0h-yoZFRNqF3xTr9VVE"  # <-- Replace with your real Gemini key
 genai.configure(api_key=GENAI_API_KEY)
-MODEL_ID = "gemini-1.5-flash"  # Commonly available model
+MODEL_ID = "gemini-1.5-flash"  # Commonly available; change if needed
 # ==============================================================
 
 
@@ -123,28 +124,40 @@ def detect_risks(text: str, injuries: List[str]) -> List[str]:
     return flags
 
 
-def extract_macros(text: str):
-    """Extract lines like: Day 1 ... 2300 kcal ... 140 g ... 300 g ... 70 g"""
-    rows = []
+def extract_macros(text: str) -> pd.DataFrame | None:
+    """Extract 'Day N ... #### kcal ... P g ... C g ... F g' lines -> DataFrame."""
+    rows: List[Dict[str, int]] = []
     for line in text.splitlines():
         m = re.search(
             r"day\s*(\d+).*?(\d{3,4})\s*kcal.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g",
-            line, re.I
+            line,
+            re.I,
         )
         if m:
             d, kcal, p, c, f = m.groups()
-            rows.append({"Day": int(d), "Calories": int(kcal), "Protein(g)": int(p), "Carbs(g)": int(c), "Fat(g)": int(f)})
+            rows.append(
+                {
+                    "Day": int(d),
+                    "Calories": int(kcal),
+                    "Protein(g)": int(p),
+                    "Carbs(g)": int(c),
+                    "Fat(g)": int(f),
+                }
+            )
     return pd.DataFrame(rows).sort_values("Day") if rows else None
 
 
 def plot_macros(df: pd.DataFrame):
-    """Create a long-form line chart for Calories and macros."""
     if df is None or df.empty:
         return None
     long_df = df.melt(id_vars="Day", var_name="Metric", value_name="Value")
     fig = px.line(
-        long_df, x="Day", y="Value", color="Metric",
-        markers=True, title="Nutrition Plan — Daily Targets"
+        long_df,
+        x="Day",
+        y="Value",
+        color="Metric",
+        markers=True,
+        title="Nutrition Plan — Daily Targets",
     )
     fig.update_layout(legend_title_text="Metric", height=420)
     return fig
@@ -159,10 +172,10 @@ def reset_app():
 st.set_page_config(page_title="CoachBot AI", page_icon="🏅", layout="wide")
 st.title("🏅 CoachBot AI — Youth Athlete Fitness Assistant")
 
-# Reset button at the top
+# Reset button at the very top
 st.button("🔄 Reset", on_click=reset_app)
 
-# 0) Name
+# 0) Athlete name
 st.subheader("0) Athlete Details")
 athlete_name = st.text_input("Athlete Name (optional):", "")
 
@@ -196,6 +209,7 @@ injuries = st.multiselect(
 )
 if "none" in injuries and len(injuries) > 1:
     injuries.remove("none")
+
 constraints = st.text_input("Training Constraints", "Limited equipment")
 
 # 2) Nutrition
@@ -204,7 +218,7 @@ diet = st.selectbox("Diet Preference", ["veg", "non-veg", "vegan"])
 allergies = st.text_input("Allergies", "none")
 calorie_goal = st.text_input("Calorie Goal (optional)", "")
 
-# Feature selection (always on by default; you can untick)
+# Feature selection
 st.markdown("---")
 st.write("Select features to include:")
 selected_keys: List[str] = []
@@ -241,16 +255,19 @@ if st.button("Generate Plan 🚀"):
     for t in TASKS:
         if t["key"] not in selected_keys:
             continue
+
         prompt = (
             name_rule
             + t["tpl"].format(**ctx)
             + "\n\nRules: Use simple language. Avoid placeholders. Keep it safe for youth."
         )
+
         try:
             resp = model.generate_content(prompt)
             text = resp.text if hasattr(resp, "text") else str(resp)
         except Exception as e:
             text = f"Error generating content: {e}"
+
         outputs[t["title"]] = text
 
     st.success("Plan generated! Review below:")
@@ -263,12 +280,12 @@ if st.button("Generate Plan 🚀"):
         with tabs[i]:
             st.markdown(content)
 
-            # basic risk flags
+            # Basic risk flags
             flags = detect_risks(content, injuries)
             if flags:
                 st.error("\n".join(flags))
 
-            # nutrition table + chart if model provides macros
+            # Nutrition table + chart if macros detected
             if "nutrition" in title.lower():
                 df = extract_macros(content)
                 if df is not None:
@@ -281,8 +298,9 @@ if st.button("Generate Plan 🚀"):
                         st.plotly_chart(fig, use_container_width=True)
 
     md = "\n\n---\n\n".join([f"## {t}\n\n{c}" for t, c in outputs.items()])
-    st.download_button("Download Plan (Markdown)", data=md, file_name="coachbot_plan.md", mime="text/markdown")
-                    st.dataframe(df)
-
-    md = "\n\n---\n\n".join([f"## {t}\n\n{c}" for t, c in outputs.items()])
-    st.download_button("Download Plan (Markdown)", data=md, file_name="coachbot_plan.md", mime="text/markdown")
+    st.download_button(
+        "Download Plan (Markdown)",
+        data=md,
+        file_name="coachbot_plan.md",
+        mime="text/markdown",
+    )
