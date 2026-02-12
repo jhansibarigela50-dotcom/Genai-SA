@@ -49,3 +49,5 @@ Skale Fitness. (n.d.). Sports-specific workouts. https://skalefitness.com/sports
 TTMS. (n.d.). AI in sports: How artificial intelligence supports athletes and coaches. https://ttms.com/ai-in-sports-how-artificial-intelligence-supports-athletes-and-coaches/
 
 VCU Health. (n.d.). 5 common youth sports injuries. https://www.vcuhealth.org/news/5-common-youth-sports-injuries/#:~:text=Overuse%20injuries%20such%20as%20shin,happen%20in%20other%20sports%20too
+
+**Screenshots**
