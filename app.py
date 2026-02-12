@@ -1,42 +1,95 @@
 import re
-import time
 from typing import List, Dict
-
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import google.generativeai as genai
 
-# ===================== API KEY & MODEL =========================
+# ===================== API KEY (HARDCODED) =====================
 GENAI_API_KEY = "AIzaSyDTVSEtVpDB9egL0h-yoZFRNqF3xTr9VVE"  # <-- Replace with your real Gemini key
-MODEL_ID = "gemini-2.5-flash"        # If needed, try: "gemini-2.0-flash", "gemini-1.0-pro"
 genai.configure(api_key=GENAI_API_KEY)
+MODEL_ID = "gemini-2.5-flash"  # Use a widely available model
 # ==============================================================
 
 
 # ---------------------- TASK DEFINITIONS -----------------------
 TASKS: List[Dict[str, str]] = [
-    {"key": "workout_full", "title": "Full-body Workout Plan",
-     "tpl": "Create a 7-day progressive full-body plan for a {age}-year-old {sport} {position}. Fitness: {fitness_level}. Goals: {goals}. Injuries: {injuries}. Constraints: {constraints}. Include sets x reps, rest, RPE, warm-up and cooldown."},
-    {"key": "recovery_schedule", "title": "Safe Recovery Training",
-     "tpl": "Create a 5-day low-impact recovery plan for a youth {sport} {position} with injuries: {injuries}. Emphasize mobility, flexibility, tissue tolerance, and pain-free ranges. Avoid unsafe exercises."},
-    {"key": "tactical_coaching", "title": "Tactical Coaching",
-     "tpl": "Provide tactical coaching for {sport}. Role: {position}. Priority skills: {goals}. Give 6 drills with tactical cues, constraints-led variations, and session objectives."},
-    {"key": "nutrition_week", "title": "Week-long Nutrition Guide",
-     "tpl": "Create a 7-day nutrition plan for a {age}-year-old youth athlete in {sport}. Diet: {diet}. Allergies: {allergies}. Calorie goal: {calorie_goal}. Include hydration and daily macro estimates."},
-    {"key": "warmup_cooldown", "title": "Warm-up & Cooldown",
-     "tpl": "Create a dynamic warm-up and cooldown for {sport} {position}. Avoid movements unsafe for: {injuries}."},
-    {"key": "hydration_strategy", "title": "Hydration and Electrolytes",
-     "tpl": "Provide a hydration and electrolyte strategy for a {sport} athlete training {training_days} days/week."},
-    {"key": "mental_routine", "title": "Mental Focus Routine",
-     "tpl": "Write a mental routine for a youth {sport} {position}. Include breath work, focus cues, and pre-match steps."},
-    {"key": "visualization_drills", "title": "Visualization Drills",
-     "tpl": "Write 3 short visualization drills for {sport} {position} to rehearse key decisions and goals: {goals}."},
-    {"key": "post_injury_mobility", "title": "Post-injury Mobility",
-     "tpl": "Create a 30-min mobility session safe for injuries: {injuries}. Include tempo, dosage, and safety cues."},
-    {"key": "matchday_plan", "title": "Match-day Plan",
-     "tpl": "Create a match-day checklist for a {sport} {position}. Include meals, hydration, warm-up timing, pacing, recovery."},
+    {
+        "key": "workout_full",
+        "title": "Full-body Workout Plan",
+        "tpl": (
+            "Act as an elite youth {sport} coach. Create a 7-day progressive full-body plan for a "
+            "{age}-year-old {position}. Fitness: {fitness_level}. Goals: {goals}. Injuries: {injuries}. "
+            "Constraints: {constraints}. Include sets x reps, rest, RPE, warm-up and cooldown."
+        ),
+    },
+    {
+        "key": "recovery_schedule",
+        "title": "Safe Recovery Training",
+        "tpl": (
+            "Create a 5-day low-impact recovery plan for a youth {sport} {position} with injuries: {injuries}. "
+            "Emphasize mobility, flexibility, and pain-free progressions. Avoid unsafe exercises."
+        ),
+    },
+    {
+        "key": "tactical_coaching",
+        "title": "Tactical Coaching",
+        "tpl": (
+            "Provide tactical coaching for {sport}. Role: {position}. Priority skills: {goals}. "
+            "Give 6 drills with tactical cues and session objectives."
+        ),
+    },
+    {
+        "key": "nutrition_week",
+        "title": "Week-long Nutrition Guide",
+        "tpl": (
+            "Create a 7-day nutrition plan for a {age}-year-old youth athlete in {sport}. Diet: {diet}. "
+            "Allergies: {allergies}. Calorie goal: {calorie_goal}. Include hydration and daily macro estimates."
+        ),
+    },
+    {
+        "key": "warmup_cooldown",
+        "title": "Warm-up & Cooldown",
+        "tpl": (
+            "Create a dynamic warm-up and cooldown for {sport} {position}. Avoid movements unsafe for: {injuries}."
+        ),
+    },
+    {
+        "key": "hydration_strategy",
+        "title": "Hydration and Electrolytes",
+        "tpl": (
+            "Provide a hydration and electrolyte strategy for a {sport} athlete training {training_days} days/week."
+        ),
+    },
+    {
+        "key": "mental_routine",
+        "title": "Mental Focus Routine",
+        "tpl": (
+            "Write a mental routine for a youth {sport} {position}. Include breath work, focus cues, and pre-match steps."
+        ),
+    },
+    {
+        "key": "visualization_drills",
+        "title": "Visualization Drills",
+        "tpl": (
+            "Write 3 short visualization drills for {sport} {position} to rehearse key decisions and goals: {goals}."
+        ),
+    },
+    {
+        "key": "post_injury_mobility",
+        "title": "Post-injury Mobility",
+        "tpl": (
+            "Create a 30-min mobility session safe for injuries: {injuries}. Include tempo, dosage, and safety cues."
+        ),
+    },
+    {
+        "key": "matchday_plan",
+        "title": "Match-day Plan",
+        "tpl": (
+            "Create a match-day checklist for a {sport} {position}. Include meals, hydration, warm-up timing, pacing, recovery."
+        ),
+    },
 ]
+
 
 # ---------------------- REFERENCE DATA -------------------------
 SPORT_POSITIONS: Dict[str, List[str]] = {
@@ -57,6 +110,7 @@ SAFETY_RULES: Dict[str, List[str]] = {
     "back": ["heavy deadlifts", "loaded back extensions"],
 }
 
+
 # --------------------------- HELPERS ---------------------------
 def detect_risks(text: str, injuries: List[str]) -> List[str]:
     flags: List[str] = []
@@ -67,90 +121,39 @@ def detect_risks(text: str, injuries: List[str]) -> List[str]:
                 flags.append(f"⚠️ Risk for {inj}: includes '{risk}'")
     return flags
 
-def extract_macros(text: str) -> pd.DataFrame | None:
-    rows: List[Dict[str, int]] = []
+
+def extract_macros(text: str):
+    rows = []
     for line in text.splitlines():
-        m = re.search(r"day\s*(\d+).*?(\d{3,4})\s*kcal.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g", line, re.I)
+        m = re.search(
+            r"day\s*(\d+).*?(\d{3,4})\s*kcal.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g",
+            line,
+            re.I,
+        )
         if m:
             d, kcal, p, c, f = m.groups()
-            rows.append({"Day": int(d), "Calories": int(kcal), "Protein(g)": int(p), "Carbs(g)": int(c), "Fat(g)": int(f)})
-    return pd.DataFrame(rows).sort_values("Day") if rows else None
+            rows.append(
+                {
+                    "Day": int(d),
+                    "Calories": int(kcal),
+                    "Protein(g)": int(p),
+                    "Carbs(g)": int(c),
+                    "Fat(g)": int(f),
+                }
+            )
+    return pd.DataFrame(rows) if rows else None
 
-def plot_macros(df: pd.DataFrame):
-    if df is None or df.empty:
-        return None
-    long_df = df.melt(id_vars="Day", var_name="Metric", value_name="Value")
-    fig = px.line(long_df, x="Day", y="Value", color="Metric", markers=True, title="Nutrition Plan — Daily Targets")
-    fig.update_layout(legend_title_text="Metric", height=420)
-    return fig
 
 def reset_app():
     st.session_state.clear()
     st.rerun()
 
-def make_single_call_prompt(ctx: Dict[str, str | int], selected: List[Dict[str, str]]) -> str:
-    """Ask Gemini to produce all selected sections at once with clear markers."""
-    name_rule = f"Address the athlete by name as {ctx['athlete_name']}. " if ctx.get("athlete_name") else ""
-    header = (
-        f"{name_rule}"
-        f"You are a youth {ctx['sport']} coach. Use simple language suitable for a teenager. "
-        f"Keep all advice conservative and age-appropriate. If unsure, say so.\n\n"
-        "CONTEXT\n"
-        f"- Sport: {ctx['sport']}\n- Position: {ctx['position']}\n- Age: {ctx['age']} | Fitness: {ctx['fitness_level']}\n"
-        f"- Training days/week: {ctx['training_days']} | Session duration: {ctx['session_time']} min\n"
-        f"- Goals: {ctx['goals']}\n- Injuries: {ctx['injuries']}\n- Constraints: {ctx['constraints']}\n"
-        f"- Diet: {ctx['diet']} | Allergies: {ctx['allergies']} | Calorie goal: {ctx['calorie_goal']}\n\n"
-        "OUTPUT FORMAT\n"
-        "For each section below, start with a heading EXACTLY like:\n"
-        "### [[Section Title]]\n"
-        "If you include daily nutrition targets, use lines like: 'Day 1 — 2300 kcal — 140 g protein — 300 g carbs — 70 g fat'.\n\n"
-        "SECTIONS TO PRODUCE\n"
-    )
-    body = ""
-    for s in selected:
-        body += f"- {s['title']}: {s['tpl'].format(**ctx)}\n"
-    rules = "\nRULES\n- No placeholders like [your name] or [coach's name].\n- Prioritize safety for youth and injuries listed.\n"
-    return header + body + rules
 
-def split_sections(text: str) -> Dict[str, str]:
-    """Split single-call output into {title: content} using ### [[Title]] markers."""
-    pattern = re.compile(r"^### \[\[(.+?)\]\]\s*$", re.M)
-    parts = pattern.split(text)
-    if len(parts) < 3:
-        return {"Full Plan": text.strip()}
-    result: Dict[str, str] = {}
-    for i in range(1, len(parts), 2):
-        title = parts[i].strip()
-        content = parts[i + 1].strip() if i + 1 < len(parts) else ""
-        result[title] = content
-    return result
-
-def call_gemini_once(model_id: str, prompt: str, temperature: float = 0.7, max_attempts: int = 2) -> str:
-    """Call Gemini with a single prompt; if rate-limited, wait 'retry in Xs' and retry once."""
-    model = genai.GenerativeModel(model_name=model_id, generation_config={"temperature": temperature})
-    delay_pattern = re.compile(r"(?:retry in|retry_delay\s*\{\s*seconds:\s*)(\d+)", re.I)
-    last_err = None
-    for attempt in range(max_attempts):
-        try:
-            resp = model.generate_content(prompt)
-            return resp.text if hasattr(resp, "text") else str(resp)
-        except Exception as e:
-            msg = str(e)
-            last_err = msg
-            # Try to detect 429-style delay hint
-            m = delay_pattern.search(msg)
-            if m and attempt + 1 < max_attempts:
-                wait_s = min(int(m.group(1)) + 1, 60)
-                time.sleep(wait_s)
-                continue
-            else:
-                break
-    return f"Error generating content: {last_err or 'unknown error'}"
 # --------------------------- UI SETUP ---------------------------
 st.set_page_config(page_title="CoachBot AI", page_icon="🏅", layout="wide")
 st.title("🏅 CoachBot AI — Youth Athlete Fitness Assistant")
 
-# Reset
+# Reset button at the top
 st.button("🔄 Reset", on_click=reset_app)
 
 # 0) Name
@@ -175,8 +178,16 @@ with c5:
 with c6:
     session_time = st.slider("Session Duration (min)", 20, 120, 60)
 
-goals = st.multiselect("Goals", ["stamina", "strength", "speed", "agility", "tactics", "mobility", "injury prevention"], default=["stamina"])
-injuries = st.multiselect("Injury History", ["knee", "ankle", "shoulder", "hamstring", "back", "none"], default=["none"])
+goals = st.multiselect(
+    "Goals",
+    ["stamina", "strength", "speed", "agility", "tactics", "mobility", "injury prevention"],
+    default=["stamina"],
+)
+injuries = st.multiselect(
+    "Injury History",
+    ["knee", "ankle", "shoulder", "hamstring", "back", "none"],
+    default=["none"],
+)
 if "none" in injuries and len(injuries) > 1:
     injuries.remove("none")
 constraints = st.text_input("Training Constraints", "Limited equipment")
@@ -187,9 +198,9 @@ diet = st.selectbox("Diet Preference", ["veg", "non-veg", "vegan"])
 allergies = st.text_input("Allergies", "none")
 calorie_goal = st.text_input("Calorie Goal (optional)", "")
 
-# Features to include
+# Feature selection (always on by default; you can untick)
 st.markdown("---")
-st.write("Select features to include (single API call will produce all selected sections):")
+st.write("Select features to include:")
 selected_keys: List[str] = []
 for t in TASKS:
     if st.checkbox(t["title"], value=True):
@@ -213,39 +224,53 @@ if st.button("Generate Plan 🚀"):
         "athlete_name": athlete_name.strip(),
     }
 
-    selected_sections = [t for t in TASKS if t["key"] in selected_keys]
+    name_rule = (
+        f"Address the athlete by name as {ctx['athlete_name']}. "
+        if ctx["athlete_name"]
+        else ""
+    )
 
-    full_prompt = make_single_call_prompt(ctx, selected_sections)
+    model = genai.GenerativeModel(
+        model_name=MODEL_ID,
+        generation_config={"temperature": 0.7},
+    )
 
-    combined_text = call_gemini_once(MODEL_ID, full_prompt, temperature=0.7, max_attempts=2)
-
-    sections = split_sections(combined_text)
+    outputs: Dict[str, str] = {}
+    for t in TASKS:
+        if t["key"] not in selected_keys:
+            continue
+        prompt = (
+            name_rule
+            + t["tpl"].format(**ctx)
+            + "\n\nRules: Use simple language. Avoid placeholders. Keep it safe for youth."
+        )
+        try:
+            resp = model.generate_content(prompt)
+            text = resp.text if hasattr(resp, "text") else str(resp)
+        except Exception as e:
+            text = f"Error generating content: {e}"
+        outputs[t["title"]] = text
 
     st.success("Plan generated! Review below:")
+
     if ctx["athlete_name"]:
         st.markdown(f"**Plan for:** {ctx['athlete_name']}")
 
-    tabs = st.tabs(list(sections.keys()))
-    for i, (title, content) in enumerate(sections.items()):
+    tabs = st.tabs(list(outputs.keys()))
+    for i, (title, content) in enumerate(outputs.items()):
         with tabs[i]:
             st.markdown(content)
 
-            # Safety flags
+            # basic risk flags
             flags = detect_risks(content, injuries)
             if flags:
                 st.error("\n".join(flags))
 
-            # Nutrition table + chart if macros detected
+            # simple nutrition macro table if the model provides it
             if "nutrition" in title.lower():
                 df = extract_macros(content)
                 if df is not None:
-                    st.markdown("**Estimated macros from the plan (table):**")
-                    st.dataframe(df, use_container_width=True)
-                    fig = plot_macros(df)
-                    if fig is not None:
-                        st.markdown("**Daily calorie & macro trends (chart):**")
-                        st.plotly_chart(fig, use_container_width=True)
+                    st.dataframe(df)
 
-    # Download full plan
-    md = "\n\n---\n\n".join([f"## {t}\n\n{c}" for t, c in sections.items()])
+    md = "\n\n---\n\n".join([f"## {t}\n\n{c}" for t, c in outputs.items()])
     st.download_button("Download Plan (Markdown)", data=md, file_name="coachbot_plan.md", mime="text/markdown")
