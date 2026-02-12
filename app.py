@@ -9,7 +9,7 @@ import google.generativeai as genai
 # ===================== API KEY (HARDCODED) =====================
 GENAI_API_KEY = "AIzaSyDTVSEtVpDB9egL0h-yoZFRNqF3xTr9VVE"  # <-- Replace with your real Gemini key
 genai.configure(api_key=GENAI_API_KEY)
-MODEL_ID = "gemini-1.5-flash"  # Commonly available; change if needed
+MODEL_ID = "gemini-2.5-flash"  # Commonly available; change if needed
 # ==============================================================
 
 
