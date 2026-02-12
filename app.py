@@ -63,4 +63,6 @@ TASKS: List[Dict[str, str]] = [
     {
         "key": "mental_routine",
         "title": "Mental Focus Routine",
-        "tpl":"" }]
+        "tpl":("jghgh"),
+    }
+]
