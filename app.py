@@ -2,12 +2,13 @@ import re
 from typing import List, Dict
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import google.generativeai as genai
 
 # ===================== API KEY (HARDCODED) =====================
 GENAI_API_KEY = "AIzaSyA9OQMnlQm92Dp63QGDjXHv7I6WG3a5Aq0"  # <-- Replace with your real Gemini key
 genai.configure(api_key=GENAI_API_KEY)
-MODEL_ID = "gemini-2.5-flash"  # Use a widely available model
+MODEL_ID = "gemini-1.5-flash"  # Commonly available model
 # ==============================================================
 
 
@@ -123,25 +124,30 @@ def detect_risks(text: str, injuries: List[str]) -> List[str]:
 
 
 def extract_macros(text: str):
+    """Extract lines like: Day 1 ... 2300 kcal ... 140 g ... 300 g ... 70 g"""
     rows = []
     for line in text.splitlines():
         m = re.search(
             r"day\s*(\d+).*?(\d{3,4})\s*kcal.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g.*?(\d{2,3})\s*g",
-            line,
-            re.I,
+            line, re.I
         )
         if m:
             d, kcal, p, c, f = m.groups()
-            rows.append(
-                {
-                    "Day": int(d),
-                    "Calories": int(kcal),
-                    "Protein(g)": int(p),
-                    "Carbs(g)": int(c),
-                    "Fat(g)": int(f),
-                }
-            )
-    return pd.DataFrame(rows) if rows else None
+            rows.append({"Day": int(d), "Calories": int(kcal), "Protein(g)": int(p), "Carbs(g)": int(c), "Fat(g)": int(f)})
+    return pd.DataFrame(rows).sort_values("Day") if rows else None
+
+
+def plot_macros(df: pd.DataFrame):
+    """Create a long-form line chart for Calories and macros."""
+    if df is None or df.empty:
+        return None
+    long_df = df.melt(id_vars="Day", var_name="Metric", value_name="Value")
+    fig = px.line(
+        long_df, x="Day", y="Value", color="Metric",
+        markers=True, title="Nutrition Plan — Daily Targets"
+    )
+    fig.update_layout(legend_title_text="Metric", height=420)
+    return fig
 
 
 def reset_app():
@@ -224,11 +230,7 @@ if st.button("Generate Plan 🚀"):
         "athlete_name": athlete_name.strip(),
     }
 
-    name_rule = (
-        f"Address the athlete by name as {ctx['athlete_name']}. "
-        if ctx["athlete_name"]
-        else ""
-    )
+    name_rule = f"Address the athlete by name as {ctx['athlete_name']}. " if ctx["athlete_name"] else ""
 
     model = genai.GenerativeModel(
         model_name=MODEL_ID,
@@ -266,10 +268,20 @@ if st.button("Generate Plan 🚀"):
             if flags:
                 st.error("\n".join(flags))
 
-            # simple nutrition macro table if the model provides it
+            # nutrition table + chart if model provides macros
             if "nutrition" in title.lower():
                 df = extract_macros(content)
                 if df is not None:
+                    st.markdown("**Estimated macros from the plan (table):**")
+                    st.dataframe(df, use_container_width=True)
+
+                    fig = plot_macros(df)
+                    if fig is not None:
+                        st.markdown("**Daily calorie & macro trends (chart):**")
+                        st.plotly_chart(fig, use_container_width=True)
+
+    md = "\n\n---\n\n".join([f"## {t}\n\n{c}" for t, c in outputs.items()])
+    st.download_button("Download Plan (Markdown)", data=md, file_name="coachbot_plan.md", mime="text/markdown")
                     st.dataframe(df)
 
     md = "\n\n---\n\n".join([f"## {t}\n\n{c}" for t, c in outputs.items()])
