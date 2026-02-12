@@ -50,6 +50,7 @@ TTMS. (n.d.). AI in sports: How artificial intelligence supports athletes and co
 
 VCU Health. (n.d.). 5 common youth sports injuries. https://www.vcuhealth.org/news/5-common-youth-sports-injuries/#:~:text=Overuse%20injuries%20such%20as%20shin,happen%20in%20other%20sports%20too
 
+
 **Screenshots**
 <img width="2730" height="1186" alt="image" src="https://github.com/user-attachments/assets/e5877ea3-ed03-4b2e-9038-77b7fb34e388" />
 <img width="2638" height="972" alt="image" src="https://github.com/user-attachments/assets/ef569712-82e5-4614-b035-4d142620e05e" />
