@@ -5,7 +5,7 @@ import pandas as pd
 import google.generativeai as genai
 
 # ===================== API KEY (HARDCODED) =====================
-GENAI_API_KEY = "AIzaSyC7CxJdhsNcXl5vLXH7lD9Ul46ZgCqMvBc"  # <-- Replace with your real Gemini key
+GENAI_API_KEY = "AIzaSyDva2QEldHPQC2TybyddHN7iv2En5YnHSo"  # <-- Replace with your real Gemini key
 genai.configure(api_key=GENAI_API_KEY)
 MODEL_ID = "gemini-2.5-flash"  # Use a widely available model
 # ==============================================================
