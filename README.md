@@ -58,4 +58,5 @@ This app was deployed through Streamlit
 <img width="2638" height="972" alt="image" src="https://github.com/user-attachments/assets/ef569712-82e5-4614-b035-4d142620e05e" />
 <img width="2666" height="1044" alt="image" src="https://github.com/user-attachments/assets/05a551a0-69d6-4081-96d4-9f6df2689e35" />
 
-
+**Prompt Engineering**
+Can you give me a quick warm‑up routine I can do before school if I only have 5 minutes?
