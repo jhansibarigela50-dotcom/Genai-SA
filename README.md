@@ -59,4 +59,33 @@ This app was deployed through Streamlit
 <img width="2666" height="1044" alt="image" src="https://github.com/user-attachments/assets/05a551a0-69d6-4081-96d4-9f6df2689e35" />
 
 **Prompt Engineering**
+
 Can you give me a quick warm‑up routine I can do before school if I only have 5 minutes?
+<img width="2318" height="1144" alt="image" src="https://github.com/user-attachments/assets/8f4c0627-e36f-43ec-8ddd-0bf0bde18742" />
+
+I feel very fatigue. How can I adjust my training without losing progress?
+<img width="2070" height="1112" alt="image" src="https://github.com/user-attachments/assets/aa6df1fa-a724-417f-8087-f2909459b20a" />
+
+Explain the difference between stamina, speed, and agility in simple words.
+<img width="2066" height="782" alt="image" src="https://github.com/user-attachments/assets/e94e4b45-bf41-4025-b948-6a9d80468c9c" />
+
+Give me 3 healthy snack ideas I can eat between classes that will help with energy.
+<img width="2068" height="690" alt="image" src="https://github.com/user-attachments/assets/27914c54-f727-48d3-9804-2b5e701b1aac" />
+
+I have mild knee discomfort sometimes. What safe exercises can I still do?
+<img width="1710" height="1242" alt="image" src="https://github.com/user-attachments/assets/99d02201-64a3-4d4f-a0fa-46546bbb39d2" />
+
+Can you make a quick workout I can do at home with no equipment?
+<img width="1276" height="1418" alt="image" src="https://github.com/user-attachments/assets/a033098b-9b3d-4d9d-8298-4d9422424043" />
+
+I have a match tomorrow. What should I eat tonight and tomorrow morning?
+<img width="822" height="1210" alt="image" src="https://github.com/user-attachments/assets/1fa0eb47-36e7-4eb8-83e9-fe3659e0930b" />
+
+Give me some mental focus tips for staying calm before a competition.
+<img width="1312" height="1174" alt="image" src="https://github.com/user-attachments/assets/503677d8-f02e-48ce-9d2f-1fb680629a36" />
+
+Create a fun 15‑minute cardio routine I can do alone, suitable for a teenager.
+<img width="1214" height="1118" alt="image" src="https://github.com/user-attachments/assets/8cf8f603-2bb0-4716-b8d1-a880a8774c07" />
+
+Explain how to build consistency in training and avoid demotivation.
+<img width="974" height="1206" alt="image" src="https://github.com/user-attachments/assets/b1c61a5c-4073-4fb1-8036-e0f6386bed68" />
