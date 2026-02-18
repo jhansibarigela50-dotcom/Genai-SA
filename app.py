@@ -8,7 +8,7 @@ import plotly.express as px
 import google.generativeai as genai
 
 # ===================== API KEY & MODEL =========================
-GENAI_API_KEY = "YOUR_API_KEY_HERE"  # <-- Replace with your real Gemini key (starts with AIza...)
+GENAI_API_KEY = "YOUR_API_KEY_HERE"  # <-- Replace with your real Gemini key (starts with AIza…)
 MODEL_ID = "gemini-1.5-flash"        # Good free-tier quota; change if needed
 genai.configure(api_key=GENAI_API_KEY.strip())
 # ==============================================================
@@ -67,6 +67,7 @@ def detect_risks(text: str, injuries: List[str]) -> List[str]:
                 flags.append(f"⚠️ Risk for {inj}: includes '{risk}'")
     return flags
 
+
 def extract_macros(text: str) -> Optional[pd.DataFrame]:
     """Extract 'Day N ... #### kcal ... P g ... C g ... F g' lines -> DataFrame."""
     rows: List[Dict[str, int]] = []
@@ -77,6 +78,7 @@ def extract_macros(text: str) -> Optional[pd.DataFrame]:
             rows.append({"Day": int(d), "Calories": int(kcal), "Protein(g)": int(p), "Carbs(g)": int(c), "Fat(g)": int(f)})
     return pd.DataFrame(rows).sort_values("Day") if rows else None
 
+
 def plot_macros(df: pd.DataFrame):
     if df is None or df.empty:
         return None
@@ -85,9 +87,11 @@ def plot_macros(df: pd.DataFrame):
     fig.update_layout(legend_title_text="Metric", height=420)
     return fig
 
+
 def reset_app():
     st.session_state.clear()
     st.rerun()
+
 
 def build_context_block(ctx: Dict[str, str | int]) -> str:
     """Reusable context block for prompts and chat."""
@@ -102,6 +106,7 @@ def build_context_block(ctx: Dict[str, str | int]) -> str:
         f"- Constraints: {ctx['constraints']}\n"
         f"- Diet: {ctx['diet']} | Allergies: {ctx['allergies']} | Calorie goal: {ctx['calorie_goal']}\n"
     )
+
 
 def make_single_call_prompt(ctx: Dict[str, str | int], selected: List[Dict[str, str]]) -> str:
     """Ask Gemini to produce all selected sections at once with clear markers."""
@@ -121,6 +126,7 @@ def make_single_call_prompt(ctx: Dict[str, str | int], selected: List[Dict[str, 
     rules = "\nRULES\n- No placeholders like [your name] or [coach's name].\n- Prioritize safety for youth and listed injuries.\n"
     return header + body + rules
 
+
 def split_sections(text: str) -> Dict[str, str]:
     """Split single-call output into {title: content} using ### [[Title]] markers."""
     pattern = re.compile(r"^### \[\[(.+?)\]\]\s*$", re.M)
@@ -133,6 +139,7 @@ def split_sections(text: str) -> Dict[str, str]:
         content = parts[i + 1].strip() if i + 1 < len(parts) else ""
         result[title] = content
     return result
+
 
 def call_gemini_once(model_id: str, prompt: str, temperature: float = 0.7, max_attempts: int = 2) -> str:
     """Call Gemini once; if rate-limited, wait 'retry in Xs' (parsed from message) and retry once."""
@@ -153,6 +160,7 @@ def call_gemini_once(model_id: str, prompt: str, temperature: float = 0.7, max_a
                 continue
             break
     return f"Error generating content: {last_err or 'unknown error'}"
+
 
 def verify_key(model_id: str, api_key: str) -> Tuple[bool, str]:
     """Tiny probe to validate the key before generating the full plan or chatting."""
@@ -209,7 +217,7 @@ diet = st.selectbox("Diet Preference", ["veg", "non-veg", "vegan"])
 allergies = st.text_input("Allergies", "none")
 calorie_goal = st.text_input("Calorie Goal (optional)", "")
 
-# Features to include
+# Feature selection
 st.markdown("---")
 st.write("Select features to include (single API call will produce all selected sections):")
 selected_keys: List[str] = []
@@ -296,7 +304,7 @@ with col_right:
     )
     if st.button("🧹 Clear Chat"):
         st.session_state.chat_history = []
-        st.experimental_rerun()
+        st.rerun()
 
 with col_left:
     # Display history
@@ -346,12 +354,12 @@ with col_left:
                 "Paste a fresh key (starts with AIza…) and try again."
             )
             st.session_state.chat_history.append({"role": "assistant", "content": err})
-            st.experimental_rerun()
+            st.rerun()
 
         # Call Gemini once for this chat turn (with brief retry)
         reply = call_gemini_once(MODEL_ID, chat_prompt, temperature=0.7, max_attempts=2)
         st.session_state.chat_history.append({"role": "assistant", "content": reply})
-        st.experimental_rerun()
+        st.rerun()
 # ===================================================================
 
 st.markdown("---")
