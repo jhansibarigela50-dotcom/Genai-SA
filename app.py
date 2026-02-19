@@ -8,7 +8,7 @@ import plotly.express as px
 import google.generativeai as genai
 
 # ===================== API KEY & MODEL =========================
-GENAI_API_KEY = "AIzaSyDva2QEldHPQC2TybyddHN7iv2En5YnHSo"  # <-- Replace with your real Gemini key (starts with AIza…)
+GENAI_API_KEY = "AIzaSyC9w5-CA6D_2hzzXPrj3yGB89bls6MfVCY"  # <-- Replace with your real Gemini key (starts with AIza…)
 MODEL_ID = "gemini-2.5-flash"        # Good free-tier quota; change if needed
 genai.configure(api_key=GENAI_API_KEY.strip())
 # ==============================================================
