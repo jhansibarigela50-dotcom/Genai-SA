@@ -1,4 +1,10 @@
 # Smart Fitness Coaching Web App: CoachBot
+# Candidate Name: Jhansi Barigela
+# Registration Number: 1000480
+# CRS: Artificial Intelligence
+# Course Name: Generative AI
+# School Name: Birla Open Minds International School
+
 
 CoachBot AI is a web application created through Streamlit that generates personalised workout plans, nutrition advice, recovery tips, and match-day plans targeted towards young athletes that use Google Gemini AI. The plans follow user-specified sport, position, age, fitness level, training session preferences, goals, injuries, and nutritional constraints.
 
