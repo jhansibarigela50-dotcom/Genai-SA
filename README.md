@@ -21,7 +21,7 @@ CoachBot AI is a web application created through Streamlit that generates person
 * Match-Day Plan
 * Filtered options to choose the assistance needed
 
-**App Usage**
+# App Usage
 
 User enter:
 * Athlete name
@@ -36,7 +36,7 @@ Web output:
 * Alerts the user on exercises that may be unsafe based on their injury history or risk zones
 * Allows the user to download given information
 
-**Research**
+# Research
 
 Each sport is unique based on how its played. Each position in the sport is also unique to its purpose in the play which affects how the individual should train. Sport-specific workouts help improve a players performance by training exact movements and skills that position. Exercises such as lateral shuffles help with defensive movements, jump squats build leg power for vertical jumps necessary for sports like basketball or volleyball, or cone drills that improve speed crucial for football players. These exercises prevent injuries by focusing on strengthening the exact muscles used in the sport. They also improve performance by increasing endurance in the skills they need most. Sport-specific workouts build confidence and prepare athletes mentally for the intensity and competition of the sport by mimikcing game day conditions.
   
@@ -46,7 +46,7 @@ Along with training and playing sports come injuries. Common injuries are sprain
   
 AI based solutions in sports can optimize training, provide tactical advice, and minimize the risk of injury. AI based devices such as GPS vests, bands, and sensors can track heart rate, speed, distance, and movement patterns in which coaches cannot do. This helps the athlete track their progress which is important to improve performance levels. AI models can also analyze injury history, player workload, and game intensity. This hepls the athlete adjust their training intensity, and create recovery plans.
 
-**References**
+# References
 
 Johns Hopkins Medicine. (n.d.). Preventing sports injuries. https://www.hopkinsmedicine.org/health/conditions-and-diseases/sports-injuries/preventing-sports-injuries
 
@@ -56,17 +56,17 @@ TTMS. (n.d.). AI in sports: How artificial intelligence supports athletes and co
 
 VCU Health. (n.d.). 5 common youth sports injuries. https://www.vcuhealth.org/news/5-common-youth-sports-injuries/#:~:text=Overuse%20injuries%20such%20as%20shin,happen%20in%20other%20sports%20too
 
-**Deployment**
+# Deployment
 This app was deployed through Streamlit. Here is the link to access the app. 
 
 https://genai-sa-ekjouscuwabbhpkgocgulz.streamlit.app/
 
-**Screenshots**
+# Screenshots
 <img width="2730" height="1186" alt="image" src="https://github.com/user-attachments/assets/e5877ea3-ed03-4b2e-9038-77b7fb34e388" />
 <img width="2638" height="972" alt="image" src="https://github.com/user-attachments/assets/ef569712-82e5-4614-b035-4d142620e05e" />
 <img width="2666" height="1044" alt="image" src="https://github.com/user-attachments/assets/05a551a0-69d6-4081-96d4-9f6df2689e35" />
 
-**Prompt Engineering**
+# Prompt Engineering
 
 1) Can you give me a quick warm‑up routine I can do before school if I only have 5 minutes?
 <img width="2318" height="1144" alt="image" src="https://github.com/user-attachments/assets/8f4c0627-e36f-43ec-8ddd-0bf0bde18742" />
